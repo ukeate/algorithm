@@ -1,0 +1,130 @@
+package linkedlist;
+
+import java.util.Comparator;
+import java.util.Stack;
+
+public class BasicList<T> {
+
+	private Node<T> head = new Node<T>(null, null);
+
+	public Comparator<T> comp;
+
+	@SuppressWarnings("unchecked")
+	public int compare(T a, T b) {
+		if (comp != null) {
+			return comp.compare(a, b);
+		} else {
+			Comparable<T> c = (Comparable<T>) a;
+			return c.compareTo(b);
+		}
+	}
+
+	public BasicList(T[] arr) {
+		Node<T> node, pre = head;
+		for (T t : arr) {
+			node = new Node<T>(t, null);
+			pre.next = node;
+			pre = node;
+		}
+	}
+
+	public void print() {
+		Node<T> node = head.next;
+		while (node.next != null) {
+			System.out.println(node.value);
+			node = node.next;
+		}
+		System.out.println(node.value);
+	}
+
+	/**
+	 * 时间复杂度为n, 空间复杂度为n
+	 * 
+	 */
+	public void printInverse() {
+		Node<T> node = head.next;
+		Stack<T> stack = new Stack<T>();
+		while (node.next != null) {
+			stack.add(node.value);
+			node = node.next;
+		}
+		stack.add(node.value);
+		while (!stack.isEmpty()) {
+			System.out.println(stack.pop());
+		}
+	}
+
+	private void printRecursive(Node<T> node) {
+		if (node.next != null) {
+			printRecursive(node.next);
+		}
+		System.out.println(node.value);
+	}
+
+	/**
+	 * 时间复杂度为n, 空间复杂度为n
+	 */
+	public void printInverse2() {
+		printRecursive(head.next);
+	}
+
+	private Node<T> moveTo(int ind) {
+		Node<T> node = head;
+		for (int i = 0; i <= ind; i++) {
+			if (node.next == null) {
+				break;
+			} else {
+				node = node.next;
+			}
+		}
+		return node;
+	}
+
+	public void insert(int ind, T val) {
+		Node<T> node = moveTo(ind), node2Ins = new Node<T>(val, null);
+
+		node2Ins.next = node.next;
+		node.next = node2Ins;
+
+	}
+
+	public void remove(int ind) {
+		Node<T> preNode = moveTo(ind - 1), afterNode = preNode.next.next;
+		preNode.next = afterNode;
+	}
+
+	public T max() {
+		Node<T> node = head.next;
+		T max = node.value;
+		node = node.next;
+		while (node != null) {
+			if (compare(node.value, max) > 0) {
+				max = node.value;
+			}
+			node = node.next;
+		}
+//		if (compare(node.value, max) > 0) {
+//			max = node.value;
+//		}
+		return max;
+	}
+	public void reverseList() {
+		Node<T> first = head.next, pre = first, p = pre.next, next = null;
+		while(p != null) {
+			next = p.next;
+			p.next = pre;
+
+			pre = p;
+			p = next;
+		}
+		first.next = null;
+		head.next = pre;
+	}
+	// @Test
+	// public void testHere(){
+	// BasicList<Integer> list = new BasicList<Integer>(new Integer []{1, 2,
+	// 3});
+	// list.print();
+	// }
+
+}

@@ -1,0 +1,28 @@
+package sort;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+
+public class MergeSort {
+	public void recurse (int arr[], int start, int end, int[] reslut) {
+		if(start < end) {
+			int mid = (start + end) / 2;
+			recurse(arr, start, mid, result);
+		}
+	}
+
+	public int[] mergeSort(int[] arr) {
+		int len = arr.length;
+		int[] retArr = new int[len];
+		recurse(arr, 0, arr.length - 1, retArr);
+		return retArr;
+	}
+
+	@Test
+	public void testMergeSort() {
+		int[] arr = new int[] {3,4,2,1};
+		int[] result = mergeSort(arr);
+		System.out.println(Arrays.toString(result));
+	}
+}

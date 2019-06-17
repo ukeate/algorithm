@@ -1,0 +1,69 @@
+package array;
+
+import org.junit.Test;
+
+public class Str {
+
+	public boolean isLetter(char c) {
+		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public int lastWorldLen(String s) {
+		int len = s.length();
+		if (len < 1) {
+			return 1;
+		}
+		int pos = len - 1;
+		while (pos >= 0) {
+			if (isLetter(s.charAt(pos))) {
+				break;
+			} else {
+				pos--;
+			}
+		}
+		int retLen = 0;
+		while (pos >= 0) {
+			if (!isLetter(s.charAt(pos))) {
+				break;
+			} else {
+				pos--;
+				retLen++;
+			}
+		}
+		return retLen;
+	}
+
+	@Test
+	public void testLastWorldLen() {
+		System.out.println(lastWorldLen("abc def "));
+	}
+	/*
+	 * hash表算法
+	 * 时间复杂度n, 空间复杂度1
+	 * 
+	 */
+	public boolean isAnagram (String s, String t) {
+		if(s.length() != t.length()) {
+			return false;
+		} else {
+			int TWENTY_SIX = 26;
+			int len = s.length();
+			int[] sTable = new int[TWENTY_SIX];
+			int[] tTable = new int[TWENTY_SIX];
+			for(int i = 0; i < len; i++) {
+				sTable[s.charAt(i) - 'a'] ++;
+				tTable[t.charAt(i) - 'a'] ++;
+			}
+			for(int i = 0; i < TWENTY_SIX; i++) {
+				if(sTable[i] != tTable[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+}

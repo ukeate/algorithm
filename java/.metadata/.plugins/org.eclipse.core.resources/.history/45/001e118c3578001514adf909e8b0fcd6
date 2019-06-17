@@ -1,0 +1,19 @@
+package array;
+
+import org.junit.Test;
+
+public class PalindromeString {
+
+	public boolean isPalindrome(String str){
+		for(int i = 0, j = str.length() - 1; i < j; i++, j--){
+			if(str.charAt(i) != str.charAt(j))
+				return false;
+		}
+		return true;
+	}
+	
+	@Test
+	public void testIsPalindrome(){
+		System.out.println(isPalindrome("abcddcba"));
+	}
+}

@@ -1,0 +1,21 @@
+package array;
+
+import org.junit.Test;
+
+public class PalindromeString {
+
+	public boolean isPalindrome(String str){
+		int half = str.length() - 1/ 2, end = str.length() - 1;
+		for(int i = 0; i < half; i++){
+			if(str.charAt(i) != str.charAt(end))
+				return false;
+			end--;
+		}
+		return true;
+	}
+	
+	@Test
+	public void testIsPalindrome(){
+		System.out.println(isPalindrome("abcddcba"));
+	}
+}

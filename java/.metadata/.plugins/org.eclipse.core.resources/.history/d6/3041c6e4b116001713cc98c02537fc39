@@ -1,0 +1,5 @@
+package com.cn.graph;
+
+public class ArcNode {
+
+}

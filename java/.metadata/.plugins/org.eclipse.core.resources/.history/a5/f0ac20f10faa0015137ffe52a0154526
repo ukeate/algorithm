@@ -1,0 +1,72 @@
+package linkedlist;
+
+import java.util.Iterator;
+import java.util.Stack;
+
+public class BasicList<T> {
+
+	private Node<T> head = new Node<T>(null, null);
+
+	public BasicList(T[] arr) {
+		Node<T> node, pre = head;
+		for (T t : arr) {
+			node = new Node<T>(t, null);
+			pre.next = node;
+			pre = node;
+		}
+	}
+
+	public void print() {
+		Node<T> node = head.next;
+		while (node.next != null) {
+			System.out.println(node.value);
+			node = node.next;
+		}		System.out.println(node.value);
+	}
+	
+	public void printInverse() {
+		Node<T> node = head.next;
+		Stack<T> stack = new Stack<T> ();
+		while(node.next != null) {
+			stack.add(node.value);
+			node = node.next;
+		}
+		Iterator<T> it = stack.iterator();
+		while(it.hasNext()) {
+			System.out.println(it.next());
+		}
+	}
+
+	private Node<T> moveTo(int ind) {
+		Node<T> node = head;
+		for (int i = 0; i <= ind; i++) {
+			if (node.next == null) {
+				break;
+			} else {
+				node = node.next;
+			}
+		}
+		return node;
+	}
+
+	public void insert(int ind, T val) {
+		Node<T> node = moveTo(ind), node2Ins = new Node<T>(val, null);
+
+		node2Ins.next = node.next;
+		node.next = node2Ins;
+
+	}
+
+	public void remove(int ind) {
+		Node<T> preNode = moveTo(ind - 1), afterNode = preNode.next.next;
+		preNode.next = afterNode;
+	}
+
+	// @Test
+	// public void testHere(){
+	// BasicList<Integer> list = new BasicList<Integer>(new Integer []{1, 2,
+	// 3});
+	// list.print();
+	// }
+
+}

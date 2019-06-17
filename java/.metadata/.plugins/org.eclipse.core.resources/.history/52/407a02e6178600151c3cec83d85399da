@@ -1,0 +1,44 @@
+package array;
+
+import org.junit.Test;
+
+public class PalindromeString {
+
+	public boolean isPalindrome(String str) {
+		for (int i = 0, j = str.length() - 1; i < j; i++, j--) {
+			if (str.charAt(i) != str.charAt(j))
+				return false;
+		}
+		return true;
+	}
+
+	@Test
+	public void testIsPalindrome() {
+		System.out.println(isPalindrome("abcdAdcba"));
+	}
+
+	public boolean isAlpha(char c) {
+		if (c >= '0' && c <= '9' || c >= 'a' && c <= 'z')
+			return true;
+		else
+			return false;
+	}
+
+	public boolean isPalindrome2(String s) {
+		s = s.toLowerCase();
+		for (int i = 0, j = s.length() - 1; i < j; i++, j--) {
+			while (i < j && !isAlpha(s.charAt(i)))
+				i++;
+			while (i < j && !isAlpha(s.charAt(j)))
+				j--;
+			if (s.charAt(i) != s.charAt(j))
+				return false;
+		}
+		return true;
+	}
+
+	@Test
+	public void testIsPalindrome2() {
+		System.out.println(isPalindrome2("a.,+bXA2c2axBa"));
+	}
+}

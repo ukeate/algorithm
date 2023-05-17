@@ -2,6 +2,7 @@
 **/.git
 **/node_module
 **/vendor
+out
 
 *.class
 *.exe

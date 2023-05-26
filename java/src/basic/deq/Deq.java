@@ -1,4 +1,4 @@
-package basic;
+package basic.deq;
 
 public class Deq {
     public static class Node<V> {
@@ -10,6 +10,8 @@ public class Deq {
             this.val = val;
         }
     }
+
+    //
 
     public static class MyDeque<V> {
         private Node<V> head;
@@ -63,7 +65,7 @@ public class Deq {
             return ans;
         }
 
-        public V polltail() {
+        public V pollTail() {
             V ans = null;
             if (head == null) {
                 return null;

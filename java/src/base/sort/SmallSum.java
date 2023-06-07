@@ -1,14 +1,15 @@
 package base.sort;
 
-public class MergeSort {
-
-    private static void merge(int[] arr, int l, int m, int r) {
+public class SmallSum {
+    public static int merge(int[] arr, int l, int m, int r) {
         int[] help = new int[r - l + 1];
         int i = 0;
         int p1 = l;
         int p2 = m + 1;
+        int ans = 0;
         while (p1 <= m && p2 <= r) {
-            help[i++] = arr[p1] <= arr[p2] ? arr[p1++] : arr[p2++];
+            ans += arr[p1] < arr[p2] ? (r - p2 + 1) * arr[p1] : 0;
+            help[i++] = arr[p1] < arr[p2] ? arr[p1++] : arr[p2++];
         }
         while (p1 <= m) {
             help[i++] = arr[p1++];
@@ -19,51 +20,42 @@ public class MergeSort {
         for (i = 0; i < help.length; i++) {
             arr[l + i] = help[i];
         }
+        return ans;
     }
 
-    private static void process(int[] arr, int l, int r) {
+    private static int process(int[] arr, int l, int r) {
         if (l == r) {
-            return;
+            return 0;
         }
-        int m = l + ((r - l) >> 1);
-        process(arr, l, m);
-        process(arr, m + 1, r);
-        merge(arr, l, m, r);
+        int mid = l + ((r - l) >> 1);
+        return process(arr, l, mid) +
+                process(arr, mid + 1, r) +
+                merge(arr, l, mid, r);
+
     }
 
-    public static void mergeSort(int[] arr) {
+    public static int smallSum(int[] arr) {
         if (arr == null || arr.length < 2) {
-            return;
+            return 0;
         }
-        process(arr, 0, arr.length - 1);
+        return process(arr, 0, arr.length - 1);
     }
 
-    public static void mergeSort2(int[] arr) {
+    private static int smallSumSure(int[] arr) {
         if (arr == null || arr.length < 2) {
-            return;
+            return 0;
         }
-        int n = arr.length;
-        for (int size = 1; size < n; size <<= 1) {
-            int l = 0;
-            while (l < n) {
-                // 左块边界, 也防m, r计算溢出
-                if (n - l <= size) {
-                    break;
-                }
-                int m = l + size - 1;
-                int r = m + Math.min(size, n - 1 - m);
-                merge(arr, l, m, r);
-                l = r + 1;
-            }
-            // 防size乘2溢出
-            if (size > (n >> 1)) {
-                break;
+        int ans = 0;
+        for (int i = 1; i < arr.length; i++) {
+            for (int j = 0; j < i; j++) {
+                ans += arr[j] < arr[i] ? arr[j] : 0;
             }
         }
+        return ans;
     }
 
     private static int[] randomArr(int maxLen, int maxVal) {
-        int[] arr = new int[(int) ((maxVal + 1) * Math.random())];
+        int[] arr = new int[(int) ((maxLen + 1) * Math.random())];
         for (int i = 0; i < arr.length; i++) {
             arr[i] = (int) ((maxVal + 1) * Math.random()) - (int) ((maxVal + 1) * Math.random());
         }
@@ -79,24 +71,6 @@ public class MergeSort {
             res[i] = arr[i];
         }
         return res;
-    }
-
-    private static boolean isEqual(int[] arr1, int[] arr2) {
-        if (arr1 == null && arr2 == null) {
-            return true;
-        }
-        if (arr1 == null & arr2 == null) {
-            return false;
-        }
-        if (arr1.length != arr2.length) {
-            return false;
-        }
-        for (int i = 0; i < arr1.length; i++) {
-            if (arr1[i] != arr2[i]) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static void print(int[] arr) {
@@ -117,10 +91,11 @@ public class MergeSort {
         for (int i = 0; i < times; i++) {
             int[] arr1 = randomArr(maxLen, maxVal);
             int[] arr2 = copy(arr1);
-            mergeSort(arr1);
-            mergeSort2(arr2);
-            if (!isEqual(arr1, arr2)) {
+            int ans1 = smallSum(arr1);
+            int ans2 = smallSumSure(arr2);
+            if (ans1 != ans2) {
                 System.out.println("Wrong");
+                System.out.println(ans1 + "|" + ans2);
                 print(arr1);
                 print(arr2);
                 break;
@@ -128,5 +103,4 @@ public class MergeSort {
         }
         System.out.println("test end");
     }
-
 }

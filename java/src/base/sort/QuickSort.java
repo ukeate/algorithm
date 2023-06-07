@@ -1,54 +1,56 @@
 package base.sort;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 
 public class QuickSort {
 
     private static void swap(int[] arr, int i, int j) {
-        arr[i] = arr[i] ^ arr[j];
-        arr[j] = arr[i] ^ arr[j];
-        arr[i] = arr[i] ^ arr[j];
+        int tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
     }
 
     public static int[] partition(int[] arr, int l, int r) {
-        int ll = l - 1;
-        int rr = r;
+        int less = l - 1;
+        int more = r;
         int i = l;
-        while (i < rr) {
+        while (i < more) {
             if (arr[i] < arr[r]) {
-                swap(arr, ++ll, i++);
+                swap(arr, ++less, i++);
             } else if (arr[i] > arr[r]) {
-                swap(arr, --ll, i);
+                swap(arr, --more, i);
             } else {
                 i++;
             }
         }
-        swap(arr, rr, r);
-        return new int[]{ll + 1, rr};
+        swap(arr, more, r);
+        return new int[]{less + 1, more};
     }
 
-    private static void qProcess(int[] arr, int l, int r) {
+    private static void process(int[] arr, int l, int r) {
         if (l >= r) {
             return;
         }
+        swap(arr, l + (int) ((r - l + 1) * Math.random()), r);
         int[] eq = partition(arr, l, r);
-        qProcess(arr, l, eq[0] - 1);
-        qProcess(arr, eq[1] + 1, r);
+        process(arr, l, eq[0] - 1);
+        process(arr, eq[1] + 1, r);
     }
 
     public static void quickSort(int[] arr) {
         if (arr == null || arr.length < 2) {
             return;
         }
-        qProcess(arr, 0, arr.length - 1);
+        process(arr, 0, arr.length - 1);
     }
 
-    private static class qJob {
+    private static class Job {
         public int l;
         public int r;
 
-        public qJob(int l, int r) {
+        public Job(int l, int r) {
             this.l = l;
             this.r = r;
         }
@@ -58,21 +60,83 @@ public class QuickSort {
         if (arr == null || arr.length < 2) {
             return;
         }
-        Deque<qJob> stack = new ArrayDeque<>();
-        stack.push(new qJob(0, arr.length - 1));
+        Deque<Job> stack = new ArrayDeque<>();
+        stack.push(new Job(0, arr.length - 1));
         while (!stack.isEmpty()) {
-            qJob cur = stack.pop();
-            int[] eq = partition(arr, cur.l, cur.r);
-            if (eq[0] > cur.l) {
-                stack.push(new qJob(cur.l, eq[0] - 1));
-            }
-            if (eq[1] < cur.r) {
-                stack.push(new qJob(eq[1] + 1, cur.r));
+            Job op = stack.pop();
+            if (op.l < op.r) {
+                int[] eq = partition(arr, op.l, op.r);
+                stack.push(new Job(op.l, eq[0] - 1));
+                stack.push(new Job(eq[1] + 1, op.r));
             }
         }
     }
 
 
+    private static int[] randomArr(int maxLen, int maxVal) {
+        int[] arr = new int[(int) ((maxVal + 1) * Math.random())];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = (int) ((maxVal + 1) * Math.random()) - (int) ((maxVal + 1) * Math.random());
+        }
+        return arr;
+    }
+
+    private static int[] copy(int[] arr) {
+        if (arr == null) {
+            return null;
+        }
+        int[] res = new int[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            res[i] = arr[i];
+        }
+        return res;
+    }
+
+    private static boolean isEqual(int[] arr1, int[] arr2) {
+        if (arr1 == null && arr2 == null) {
+            return true;
+        }
+        if (arr1 == null & arr2 == null) {
+            return false;
+        }
+        if (arr1.length != arr2.length) {
+            return false;
+        }
+        for (int i = 0; i < arr1.length; i++) {
+            if (arr1[i] != arr2[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void print(int[] arr) {
+        if (arr == null) {
+            return;
+        }
+        for (int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i] + ",");
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args) {
+        int times = 100000;
+        int maxLen = 100;
+        int maxVal = 100;
+        System.out.println("test begin");
+        for (int i = 0; i < times; i++) {
+            int[] arr1 = randomArr(maxLen, maxVal);
+            int[] arr2 = copy(arr1);
+            quickSort(arr1);
+            quickSort2(arr2);
+            if (!isEqual(arr1, arr2)) {
+                System.out.println("Wrong");
+                print(arr1);
+                print(arr2);
+                break;
+            }
+        }
+        System.out.println("test end");
     }
 }

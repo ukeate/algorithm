@@ -1,4 +1,4 @@
-package base.array;
+package base.arr;
 
 public class RangeSum {
     public static class PreSum {

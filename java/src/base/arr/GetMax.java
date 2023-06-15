@@ -1,4 +1,4 @@
-package base.array;
+package base.arr;
 
 public class GetMax {
     private static int process(int[] arr, int l, int r) {

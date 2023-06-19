@@ -1,7 +1,7 @@
 package base.dp;
 
 // https://leetcode.com/problems/longest-common-subsequence/
-public class CommonSubsequence {
+public class LongestCommonSubsequence {
     private static int process1(char[] str1, char[] str2, int i, int j) {
         if (i == 0 && j == 0) {
             return str1[i] == str2[j] ? 1 : 0;

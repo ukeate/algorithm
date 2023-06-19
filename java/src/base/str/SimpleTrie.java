@@ -1,4 +1,4 @@
-package base.trie;
+package base.str;
 
 // https://leetcode.cn/problems/implement-trie-ii-prefix-tree/
 public class SimpleTrie {

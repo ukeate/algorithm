@@ -8,9 +8,13 @@ public class DC3 {
     // 下标是后缀开始位置, 值是排名
     public int[] rank;
 
+    // 下标是排名，值是与上一名的最长前缀
+    public int[] height;
+
     public DC3(int[] nums, int max) {
         sa = sa(nums, max);
         rank = rank();
+        height = height(nums);
     }
 
     private int[] sa(int[] nums, int max) {
@@ -45,6 +49,7 @@ public class DC3 {
         }
     }
 
+    // K(最好和n相当)大时常数时间大，可以离散化成小值
     private int[] skew(int[] nums, int n, int K) {
         // 0组 >= 12组, 0组结尾时数组结尾补1个0, 12组结尾时，结尾的1组不足3字符，天然有一个或两个0
         int n0 = (n + 2) / 3, n1 = (n + 1) / 3, n2 = n / 3, n02 = n0 + n2;
@@ -138,6 +143,25 @@ public class DC3 {
         int[] ans = new int[n];
         for (int i = 0; i < n; i++) {
             ans[sa[i]] = i + 1;
+        }
+        return ans;
+    }
+
+    // 通过h数组算(下标是位置，值是与上一名的共同前缀), k表示下一个位置值最多回退1
+    private int[] height(int[] s) {
+        int n = s.length;
+        int[] ans = new int[n];
+        for (int i = 0, k = 0; i < n; ++i) {
+            if (rank[i] != 0) {
+                if (k > 0) {
+                    --k;
+                }
+                int j = sa[rank[i] - 1];
+                while (i + k < n && j + k < n && s[i + k] == s[j + k]) {
+                    ++k;
+                }
+                ans[rank[i]] = k;
+            }
         }
         return ans;
     }

@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+// k < m, 只有一种数出现k次, 其它m次, 返回这个数
 public class KTimesNum {
 
-    // k < m, 只有一种数出现k次, 其它m次
-    public static int kTimesNum(int[] arr, int k, int m) {
+    public static int find(int[] arr, int k, int m) {
         int[] t = new int[32];
         for (int num : arr) {
             for (int i = 0; i < 32; i++) {
@@ -38,7 +38,7 @@ public class KTimesNum {
         return ans;
     }
 
-    private static int kTimesNumSure(int[] arr, int k, int m) {
+    private static int findSure(int[] arr, int k, int m) {
         Map<Integer, Integer> map = new HashMap<>();
         for (int num : arr) {
             if (map.containsKey(num)) {
@@ -116,8 +116,8 @@ public class KTimesNum {
             int m = Math.max(a, b);
             if (k == m) m++;
             int[] arr = randomArray(kind, range, k, m);
-            int ans1 = kTimesNum(arr, k, m);
-            int ans2 = kTimesNumSure(arr, k, m);
+            int ans1 = find(arr, k, m);
+            int ans2 = findSure(arr, k, m);
             if (ans1 != ans2) {
                 System.out.println("Wrong");
                 System.out.println("k = " + k + ", m = " + m);

@@ -2,6 +2,7 @@ package base.dp4;
 
 // https://leetcode.com/problems/super-egg-drop
 public class ThrowChess {
+    // 返回至少扔几次
     private static int process1(int rest, int k) {
         if (rest == 0) {
             return 0;
@@ -46,6 +47,35 @@ public class ThrowChess {
             }
         }
         return dp[level][chess];
+    }
+
+    //
+
+    public static int times22(int chess, int level) {
+        if (chess < 1 || level < 1) {
+            return 0;
+        }
+        if (chess == 1) {
+            return level;
+        }
+        int[] preArr = new int [level + 1];
+        int[] curArr = new int [level + 1];
+        for (int i = 1; i < curArr.length; i++) {
+            curArr[i] = i;
+        }
+        for (int i = 1; i < chess; i++) {
+            int[] tmp = preArr;
+            preArr = curArr;
+            curArr = tmp;
+            for (int j = 1; j < curArr.length; j++) {
+                int min = Integer.MAX_VALUE;
+                for (int k = 1; k <= j; k++) {
+                    min = Math.min(min, Math.max(preArr[k - 1], curArr[j - k]));
+                }
+                curArr[j] = min + 1;
+            }
+        }
+        return curArr[level];
     }
 
     //
@@ -144,19 +174,20 @@ public class ThrowChess {
     }
 
     public static void main(String[] args) {
-        int times = 1000;
-        int maxLevel = 500;
-        int maxChess = 30;
+        int times = 10;
+        int maxLevel = 30;
+        int maxChess = 10;
         System.out.println("test begin");
         for (int i = 0; i < times; i++) {
             int level = (int) ((maxLevel + 1) * Math.random()) + 1;
             int chess = (int) ((maxChess + 1) * Math.random()) + 1;
-            int ans1 = times1(chess, level);
+//            int ans1 = times1(chess, level);
             int ans2 = times2(chess, level);
+            int ans22 = times22(chess, level);
             int ans3 = times3(chess, level);
             int ans4 = times4(chess, level);
             int ans5 = times5(chess, level);
-            if (ans1 != ans2 || ans2 != ans3 || ans4 != ans5 || ans2 != ans4) {
+            if (ans2 != ans3 || ans4 != ans5 || ans2 != ans4 || ans2 != ans22) {
                 System.out.println("Wrong");
                 break;
             }

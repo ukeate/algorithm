@@ -2,7 +2,44 @@ package base.dp4;
 
 // https://leetcode.com/problems/split-array-largest-sum/
 // 划分k部分，使部分最大和最小
+// 画家问题：输入待画序列, 画家数量，只能画相邻画，求最小完成时间
 public class BestSplitK {
+    private static int max(int[] arr){
+        int max = 0;
+        for (int num : arr) {
+            if (num > max) {
+                max = num;
+            }
+        }
+        return max;
+    }
+
+    private static int process(int[] arr, int idx, int m) {
+        if (idx == arr.length) {
+            return 0;
+        }
+        if (m == 0) {
+            return -1;
+        }
+        if (m >= arr.length) {
+            return max(arr);
+        }
+        int first = 0;
+        int min = Integer.MAX_VALUE;
+        for (int end = idx; arr.length - end >= m; end++) {
+            first += arr[end];
+            int rest = process(arr, end + 1, m - 1);
+            if (rest != -1) {
+                min = Math.min(min, Math.max(first, rest));
+            }
+        }
+        return min;
+    }
+
+    public static int split0(int[] arr, int m) {
+        return process(arr, 0, m);
+    }
+
     private static int sum(int[] sums, int l, int r) {
         return sums[r + 1] - sums[l];
     }
@@ -98,9 +135,10 @@ public class BestSplitK {
         return parts;
     }
 
+    // 枚举时间值
     public static int split3(int[] nums, int m) {
         long sum = 0;
-        for(int i = 0; i < nums.length; i++) {
+        for (int i = 0; i < nums.length; i++) {
             sum += nums[i];
         }
         long l = 0;
@@ -121,6 +159,79 @@ public class BestSplitK {
 
     //
 
+    public static int split4(int[] arr, int m) {
+        if (m >= arr.length) {
+            return max(arr);
+        }
+        int n = arr.length;
+        int[] help = new int[arr.length + 1];
+        for (int i = 0; i < n; i++) {
+            help[i + 1] = help[i] + arr[i];
+        }
+        int[][] dp = new int[n][m + 1];
+        for (int i = 0; i < n; i++) {
+            dp[i][1] = help[i + 1] - help[0];
+        }
+        // 1人画1个
+        for (int i = 1; i < Math.min(n, m); i++) {
+            dp[i][i + 1] = Math.max(dp[i - 1][i], arr[i]);
+        }
+        for (int i = 2; i < n; i++) {
+            for (int j = 2; j <= Math.min(i, m); j++) {
+                dp[i][j] = Integer.MAX_VALUE;
+                for (int k = i; k >= j - 1; k--) {
+                    dp[i][j] = Math.min(dp[i][j], Math.max(dp[k - 1][j - 1], help[i + 1] - help[k]));
+                }
+            }
+        }
+        return dp[n - 1][m];
+    }
+
+    public static int split5(int[] arr, int m) {
+        if (m >= arr.length) {
+            return max(arr);
+        }
+        int n = arr.length;
+        int[] help = new int[arr.length + 1];
+        for (int i = 0; i < n; i++) {
+            help[i + 1] = help[i] + arr[i];
+        }
+        int[][] dp = new int[n][m + 1];
+        int[][] best = new int[n][m + 1];
+        for (int i = 0; i < n; i++) {
+            dp[i][1] = help[i + 1] - help[0];
+        }
+        for (int i = 1; i < Math.min(n, m); i++) {
+            dp[i][i + 1] = Math.max(dp[i - 1][i], arr[i]);
+            best[i][i + 1] = i;
+        }
+        for (int i = 2; i < n; i++) {
+            for (int j = Math.min(i, m); j >= 2; j--) {
+                dp[i][j] = Integer.MAX_VALUE;
+                int left = best[i - 1][j];
+                int right = j + 1 > m ? i : best[i][j + 1];
+                for (int k = left; k <= right; k++) {
+                    int ans = Math.max(dp[k - 1][j - 1], help[i + 1] - help[k]);
+                    if (dp[i][j] > ans) {
+                        dp[i][j] = ans;
+                        best[i][j] = k;
+                    }
+                }
+            }
+        }
+        return dp[n - 1][m];
+    }
+
+
+    //
+
+    private static void print(int[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i] + ",");
+        }
+        System.out.println();
+    }
+
     private static int[] randomArr(int maxLen, int maxVal) {
         int[] arr = new int[(int) ((maxLen + 1) * Math.random()) + 1];
         for (int i = 0; i < arr.length; i++) {
@@ -137,11 +248,17 @@ public class BestSplitK {
         for (int i = 0; i < times; i++) {
             int m = (int) ((maxLen + 1) * Math.random()) + 1;
             int[] arr = randomArr(maxLen, maxVal);
+//            int ans0 = split0(arr, m);
             int ans1 = split1(arr, m);
             int ans2 = split2(arr, m);
             int ans3 = split3(arr, m);
-            if (ans1 != ans2 || ans1 != ans3) {
+            int ans4 = split4(arr, m);
+            int ans5 = split5(arr, m);
+            if (ans1 != ans2 || ans3 != ans4 || ans4 != ans5 || ans1 != ans3) {
                 System.out.println("Wrong");
+                print(arr);
+                System.out.println(m);
+                System.out.println(ans1 + "|" + ans2 + "|" + ans3 + "|" + ans4 + "|" + ans5);
                 break;
             }
         }

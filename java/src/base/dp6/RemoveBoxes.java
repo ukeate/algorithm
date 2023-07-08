@@ -10,9 +10,10 @@ public class RemoveBoxes {
         if (dp[l][r][k] > 0) {
             return dp[l][r][k];
         }
-        // k在l位置消
+        // i与last+1不能结合
+        // 一, [l,last]约掉
         int ans = process1(boxes, l + 1, r, 0, dp) + (k + 1) * (k + 1);
-        // k传到i位置消
+        // 二, l与i结合
         for (int i = l + 1; i <= r; i++) {
             if (boxes[i] == boxes[l]) {
                 ans = Math.max(ans, process1(boxes, l + 1, i - 1, 0, dp) + process1(boxes, i, r, k + 1, dp));

@@ -51,7 +51,7 @@ public class AOE {
 
     public static int min1(int[] x, int[] hp, int range) {
         int n = x.length;
-        // 当前位置第一个覆盖不到的位置
+        // i第一个覆盖不到的位置
         int[] cover = new int[n];
         int r = 0;
         for (int i = 0; i < n; i++) {

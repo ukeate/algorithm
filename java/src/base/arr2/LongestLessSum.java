@@ -1,16 +1,19 @@
 package base.arr2;
 
+// 累加和<=k的最长子串
 public class LongestLessSum {
-    // 辅助数组，到结尾的最小和
     public static int max1(int[] arr, int k) {
         if (arr == null || arr.length == 0) {
             return 0;
         }
-        int[] minSums = new int[arr.length];
-        int[] minSumEnds = new int[arr.length];
-        minSums[arr.length - 1] = arr[arr.length - 1];
-        minSumEnds[arr.length - 1] = arr.length - 1;
-        for (int i = arr.length - 2; i >= 0; i--) {
+        int n = arr.length;
+        // i向后最小累加和
+        int[] minSums = new int[n];
+        // i向后最小累加和位置
+        int[] minSumEnds = new int[n];
+        minSums[n - 1] = arr[n - 1];
+        minSumEnds[n - 1] = n - 1;
+        for (int i = n - 2; i >= 0; i--) {
             if (minSums[i + 1] < 0) {
                 minSums[i] = arr[i] + minSums[i + 1];
                 minSumEnds[i] = minSumEnds[i + 1];
@@ -19,11 +22,9 @@ public class LongestLessSum {
                 minSumEnds[i] = i;
             }
         }
-        int end = 0;
-        int sum = 0;
-        int ans = 0;
-        for (int i = 0; i < arr.length; i++) {
-            while (end < arr.length && sum + minSums[end] <= k) {
+        int end = 0, sum = 0, ans = 0;
+        for (int i = 0; i < n; i++) {
+            while (end < n && sum + minSums[end] <= k) {
                 sum += minSums[end];
                 end = minSumEnds[end] + 1;
             }

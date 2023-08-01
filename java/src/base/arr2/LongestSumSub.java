@@ -2,6 +2,7 @@ package base.arr2;
 
 import java.util.HashMap;
 
+// 数有正负，最长和为k的子串
 public class LongestSumSub {
     public static int max(int[] arr, int k) {
         if (arr == null || arr.length == 0) {

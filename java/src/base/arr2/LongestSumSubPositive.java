@@ -1,6 +1,6 @@
 package base.arr2;
 
-// 最长和为sum的子串，值为正数
+// 最长和为sum的子串，值为正数有单调性
 public class LongestSumSubPositive {
 
     public static int max(int[] arr, int k) {

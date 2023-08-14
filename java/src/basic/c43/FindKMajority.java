@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+// 某数出现超过k次，求这个数
 public class FindKMajority {
     // 某数出现次数超过一半
     // 两两pk剩下的数

@@ -29,7 +29,7 @@ public class DistinctSubseq {
         char[] s = str.toCharArray();
         char[] t = target.toCharArray();
         int[][] dp = new int[s.length + 1][t.length + 1];
-        for (int j = 0; j <= t.length; j++) {
+        for (int j = 1; j <= t.length; j++) {
             dp[0][j] = 0;
         }
         for (int i = 0; i <= s.length; i++) {
@@ -50,6 +50,11 @@ public class DistinctSubseq {
         char[] t = target.toCharArray();
         int[] dp = new int[t.length + 1];
         dp[0] = 1;
+        for (int i = 1; i <= s.length; i++) {
+            for (int j = t.length; j >= 1; j--) {
+                dp[j] += s[i - 1] == t[j - 1] ? dp[j - 1] : 0;
+            }
+        }
         return dp[t.length];
     }
 

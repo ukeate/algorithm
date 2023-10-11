@@ -27,6 +27,7 @@ public class P425_WordSquares {
     }
     public static List<List<String>> wordSquares(String[] words) {
         int n = words[0].length();
+        // <前缀,words>
         HashMap<String, List<String>> map = new HashMap<>();
         for (String word : words) {
             for (int end = 0; end <= n; end++) {

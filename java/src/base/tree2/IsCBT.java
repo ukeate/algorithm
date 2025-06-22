@@ -2,6 +2,19 @@ package base.tree2;
 
 import java.util.LinkedList;
 
+/**
+ * 判断二叉树是否为完全二叉树（Complete Binary Tree）
+ * 
+ * 完全二叉树定义：除了最后一层，其他层的节点都是满的，
+ * 最后一层的节点都靠左排列，没有空隙。
+ * 
+ * 解题思路：
+ * 方法1：层序遍历 - 按层遍历，一旦遇到空节点后，后续不能再有非空节点
+ * 方法2：树形DP - 收集每个子树的满二叉树性质、完全二叉树性质和高度信息
+ * 
+ * 时间复杂度：都是O(n)
+ * 空间复杂度：方法1为O(w)（队列空间），方法2为O(h)（递归栈空间）
+ */
 // is complete binary tree
 public class IsCBT {
     public static class Node {

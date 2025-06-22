@@ -3,38 +3,53 @@ package base.graph;
 import java.io.*;
 import java.util.ArrayList;
 
-// https://www.nowcoder.com/questionTerminal/88f7e156ca7d43a1a535f619cd3f495c
+/**
+ * 拓扑排序的数组优化版本
+ * 使用数组和邻接表实现，提高性能，适用于大规模图
+ * 题目链接：https://www.nowcoder.com/questionTerminal/88f7e156ca7d43a1a535f619cd3f495c
+ */
 public class TopologicalBFS2 {
     public static int MAXN = 200001;
-    public static int[] queue = new int[MAXN];
-    public static int[] indegree = new int[MAXN];
-    public static int[] ans = new int[MAXN];
-    public static int n, m, from, to;
+    public static int[] queue = new int[MAXN];      // 模拟队列的数组
+    public static int[] indegree = new int[MAXN];   // 存储每个节点的入度
+    public static int[] ans = new int[MAXN];        // 存储拓扑排序的结果
+    public static int n, m, from, to;               // n:节点数, m:边数, from/to:边的起点/终点
 
+    /**
+     * 拓扑排序的核心算法
+     * @param graph 邻接表表示的有向图
+     * @return 如果图中有环返回false，否则返回true
+     */
     public static boolean topoSort(ArrayList<ArrayList<Integer>> graph) {
+        // 计算每个节点的入度
         for (ArrayList<Integer> nexts : graph) {
             for (int next : nexts) {
                 indegree[next]++;
             }
         }
-        int l = 0;
-        int r = 0;
+        
+        // 将入度为0的节点加入队列
+        int l = 0;  // 队列头指针
+        int r = 0;  // 队列尾指针
         for (int i = 1; i <= n; i++) {
             if (indegree[i] == 0) {
                 queue[r++] = i;
             }
         }
-        int cnt = 0;
+        
+        int cnt = 0;  // 已处理的节点数量
         while (l < r) {
-            int cur = queue[l++];
-            ans[cnt++] = cur;
+            int cur = queue[l++];  // 从队列头取出节点
+            ans[cnt++] = cur;      // 加入结果数组
+            
+            // 处理当前节点的所有邻接节点
             for (int next : graph.get(cur)) {
-                if (--indegree[next] == 0) {
-                    queue[r++] = next;
+                if (--indegree[next] == 0) {  // 邻接节点入度减1，如果变为0
+                    queue[r++] = next;        // 加入队列
                 }
             }
         }
-        return cnt == n;
+        return cnt == n;  // 如果处理的节点数等于总节点数，说明无环
     }
 
     public static void main(String[] args) throws IOException {

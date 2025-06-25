@@ -1,12 +1,45 @@
 package leetc.followup;
 
-/*
-0是灭灯，1是亮灯，按开关同时改变相邻灯
-排成直线时，最少按多少开关，灯全亮
-排成环时，最少按多少开关
+/**
+ * 环形开关灯问题 (Circular Light Switch Problem)
+ * 
+ * 问题描述：
+ * 有一排灯泡排成环形，初始状态为给定数组（0表示关闭，1表示开启）
+ * 每次按下开关会改变该位置及其相邻两个位置的灯泡状态
+ * 由于是环形排列，第一个和最后一个灯泡相邻
+ * 
+ * 目标：使用最少的按键次数让所有灯泡都亮起（状态为1）
+ * 
+ * 与直线排列的区别：
+ * - 直线排列：两端的灯泡只有一个邻居
+ * - 环形排列：每个灯泡都有两个邻居（首尾相连）
+ * 
+ * 解法思路：
+ * 贪心算法 + 状态推导：
+ * 1. 关键观察：每个开关按两次等于没按，所以每个开关最多按一次
+ * 2. 环形排列的特点：第0个开关会影响第n-1、0、1位置的灯泡
+ * 3. 需要考虑第0个开关的按与不按两种情况
+ * 4. 对于每种情况，从左到右贪心决策其他开关
+ * 
+ * 算法步骤：
+ * 1. 分别尝试按下和不按下第0个开关
+ * 2. 对于每种情况，从位置1开始贪心：
+ *    - 如果前一个灯泡是暗的，必须按下当前开关来点亮它
+ *    - 否则不按当前开关
+ * 3. 最后检查所有灯泡是否都亮起
+ * 4. 返回两种情况中的最小按键次数
+ * 
+ * 时间复杂度：O(n) - 需要尝试两种情况，每种情况线性扫描
+ * 空间复杂度：O(1) - 只需要常数额外空间
  */
 public class LightLoopProblem {
 
+    /**
+     * 检查是否所有灯泡都亮起
+     * 
+     * @param arr 灯泡状态数组
+     * @return 所有灯泡都亮起返回true，否则返回false
+     */
     private static boolean valid(int[] arr) {
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] == 0) {
@@ -16,18 +49,38 @@ public class LightLoopProblem {
         return true;
     }
 
+    /**
+     * 获取位置i的前一个位置（环形数组）
+     * 
+     * @param i 当前位置
+     * @param n 数组大小
+     * @return 前一个位置的索引
+     */
     private static int lastIdx(int i, int n) {
         return i == 0 ? (n - 1) : (i - 1);
     }
 
+    /**
+     * 获取位置i的后一个位置（环形数组）
+     * 
+     * @param i 当前位置
+     * @param n 数组大小
+     * @return 后一个位置的索引
+     */
     private static int nextIdx(int i, int n) {
         return i == n - 1 ? 0 : (i + 1);
     }
 
+    /**
+     * 按下第i位置的开关，改变前、当前、后三个位置的灯泡状态（环形）
+     * 
+     * @param arr 灯泡状态数组
+     * @param i 开关位置
+     */
     private static void change(int[] arr, int i) {
-        arr[lastIdx(i, arr.length)] ^= 1;
-        arr[i] ^= 1;
-        arr[nextIdx(i, arr.length)] ^= 1;
+        arr[lastIdx(i, arr.length)] ^= 1;  // 前一个位置
+        arr[i] ^= 1;                       // 当前位置
+        arr[nextIdx(i, arr.length)] ^= 1;  // 后一个位置
     }
 
     private static int process1(int[] arr, int i) {

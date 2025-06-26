@@ -1,25 +1,63 @@
 package giant.c47;
 
-// 动态开点线段树，可范围修改
+/**
+ * 动态开点线段树（支持范围修改）
+ * 
+ * 问题描述：
+ * 在动态开点线段树基础上，增加范围修改功能
+ * 支持区间更新、区间增加、区间查询操作
+ * 
+ * 核心技术：
+ * - 懒标记（Lazy Propagation）：延迟更新子节点
+ * - 动态开点：按需创建节点
+ * - 区间操作：支持范围更新和查询
+ * 
+ * @author Zhu Runqi
+ */
 public class DynamicSegmentTree2 {
+    
+    /**
+     * 线段树节点类
+     */
     private static class Node {
+        /** 当前节点管理区间的和 */
         public int sum;
+        /** 懒标记：区间增加值 */
         public int lazy;
+        /** 懒标记：区间设置值 */
         public int change;
+        /** 是否有区间设置操作 */
         public boolean update;
+        /** 左子节点 */
         public Node left;
+        /** 右子节点 */
         public Node right;
     }
 
+    /**
+     * 动态开点线段树类（支持范围修改）
+     */
     public static class Tree {
+        /** 根节点 */
         public Node root;
+        /** 线段树管理的范围大小 */
         public int size;
 
+        /**
+         * 构造函数
+         * 
+         * @param max 线段树管理的范围 [1, max]
+         */
         public Tree(int max) {
             root = new Node();
             size = max;
         }
 
+        /**
+         * 向上更新节点信息
+         * 
+         * @param c 当前节点
+         */
         private void pushUp(Node c) {
             c.sum = c.left.sum + c.right.sum;
         }

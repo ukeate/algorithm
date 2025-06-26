@@ -5,7 +5,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
-// https://leetcode.com/problems/number-of-islands/
+/**
+ * LeetCode 200. 岛屿数量 (Number of Islands)
+ * 
+ * 问题描述：
+ * 给你一个由 '1'（陆地）和 '0'（水）组成的的二维网格，请你计算网格中岛屿的数量。
+ * 岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。
+ * 
+ * 三种解法对比：
+ * 
+ * 1. 并查集(HashMap实现) - numIslands1()
+ *    - 为每个'1'创建Dot对象，使用HashMap实现并查集
+ *    - 遍历相邻的'1'并合并到同一集合
+ *    - 时间复杂度：O(m*n*α(m*n))，α是阿克曼函数的反函数
+ *    - 空间复杂度：O(m*n)
+ * 
+ * 2. 并查集(数组实现) - numIslands2()
+ *    - 使用一维数组模拟二维坐标，数组实现并查集
+ *    - 通过坐标转换函数index(r,c) = r*col + c映射二维到一维
+ *    - 时间复杂度：O(m*n*α(m*n))
+ *    - 空间复杂度：O(m*n)
+ *    - 性能优于HashMap实现
+ * 
+ * 3. DFS感染法 - numIslands3()
+ *    - 遍历网格，遇到'1'就启动DFS将整个岛屿标记为已访问
+ *    - 每启动一次DFS就代表发现了一个新岛屿
+ *    - 时间复杂度：O(m*n)
+ *    - 空间复杂度：O(m*n) - 递归栈最坏情况
+ *    - 会修改原始数组
+ * 
+ * 性能对比：
+ * - 小规模数据：DFS感染法 > 并查集(数组) > 并查集(HashMap)
+ * - 大规模数据：并查集(数组) ≈ DFS感染法 > 并查集(HashMap)
+ * 
+ * 实际应用：
+ * - 图像分割中的连通区域检测
+ * - 网络连通性分析
+ * - 地理信息系统中的区域分析
+ */
 public class NumIslands {
     private static class Dot {
     }

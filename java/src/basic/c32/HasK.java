@@ -1,19 +1,52 @@
 package basic.c32;
 
-// 行列有序矩阵中，是否包含k
+/**
+ * 行列有序矩阵中查找目标值
+ * 
+ * 问题描述：给定一个二维矩阵，每行从左到右递增，每列从上到下递增，
+ * 判断矩阵中是否包含目标值k
+ * 
+ * 解题思路：
+ * 从右上角开始搜索（或者从左下角开始）
+ * - 如果当前值等于目标值，找到了
+ * - 如果当前值大于目标值，向左移动（排除当前列）
+ * - 如果当前值小于目标值，向下移动（排除当前行）
+ * 
+ * 为什么从右上角开始？
+ * - 右上角的元素在行上是最大的，在列上是最小的
+ * - 这样可以明确决定下一步的搜索方向
+ * 
+ * 时间复杂度：O(M+N)，其中M是行数，N是列数
+ * 空间复杂度：O(1)，只使用常数额外空间
+ */
 public class HasK {
+    
+    /**
+     * 在行列有序矩阵中查找目标值
+     * @param matrix 行列有序的二维矩阵
+     * @param k 目标值
+     * @return 如果矩阵中包含目标值则返回true，否则返回false
+     */
     public static boolean has(int[][] matrix, int k) {
-        int row = 0;
-        int col = matrix[0].length - 1;
+        // 从右上角开始搜索
+        int row = 0;                        // 起始行：第一行
+        int col = matrix[0].length - 1;     // 起始列：最后一列
+        
+        // 当位置有效时继续搜索
         while (row < matrix.length && col > -1) {
             if (matrix[row][col] == k) {
+                // 找到目标值
                 return true;
             } else if (matrix[row][col] > k) {
+                // 当前值大于目标值，向左移动（排除当前列）
                 col--;
             } else {
+                // 当前值小于目标值，向下移动（排除当前行）
                 row++;
             }
         }
+        
+        // 搜索完毕，未找到目标值
         return false;
     }
 

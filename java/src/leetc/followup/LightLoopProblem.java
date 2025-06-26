@@ -83,6 +83,13 @@ public class LightLoopProblem {
         arr[nextIdx(i, arr.length)] ^= 1;  // 后一个位置
     }
 
+    /**
+     * 方法1：递归回溯算法，尝试每个开关按或不按
+     * 
+     * @param arr 当前灯泡状态
+     * @param i 当前处理的开关位置
+     * @return 从位置i开始的最少按键次数，无法实现返回Integer.MAX_VALUE
+     */
     private static int process1(int[] arr, int i) {
         if (i == arr.length) {
             return valid(arr) ? 0 : Integer.MAX_VALUE;
@@ -95,6 +102,12 @@ public class LightLoopProblem {
         return Math.min(p1, p2);
     }
 
+    /**
+     * 方法1：递归回溯算法的入口函数
+     * 
+     * @param arr 初始灯泡状态数组
+     * @return 最少按键次数，无法实现返回Integer.MAX_VALUE
+     */
     public static int loop1(int[] arr) {
         if (arr == null || arr.length == 0) {
             return 0;
@@ -108,25 +121,49 @@ public class LightLoopProblem {
         return process1(arr, 0);
     }
 
-    //
-
-    // pre做决定
+    /**
+     * 方法2：优化递归算法，从位置2开始贪心决策
+     * 
+     * 算法思路：
+     * 环形开关灯的核心难点是处理首尾相连的约束条件。
+     * 由于第0个开关会影响第n-1、0、1位置，形成了循环依赖。
+     * 
+     * 解决方案：
+     * 1. 预先决定前两个开关（0和1）的状态，共4种组合
+     * 2. 从位置2开始，使用贪心策略：如果前前个灯泡是暗的，必须按下前一个开关
+     * 3. 最后检查末尾的约束条件是否满足
+     * 
+     * @param arr 原始灯泡数组
+     * @param idx 当前处理的位置
+     * @param prepre 前前个位置的灯泡状态
+     * @param pre 前一个位置的灯泡状态
+     * @param end 最后一个灯泡的状态
+     * @param first 第一个灯泡的状态
+     * @return 从当前位置开始的最少按键次数
+     */
     private static int process2(int[] arr, int idx, int prepre, int pre, int end, int first) {
         if (idx == arr.length) {
-            // pre == n - 1
+            // 处理到末尾，检查环形约束：
+            // end表示最后一个灯泡状态，它会被最后一个开关影响
+            // first表示第一个灯泡状态，它会被第0个开关影响
+            // prepre表示倒数第二个灯泡状态
+            // 按下最后一个开关的决策：是否需要按来点亮prepre
             return (end != first || end != prepre) ? Integer.MAX_VALUE : (end ^ 1);
         }
         if (idx < arr.length - 1) {
-            // pre < n - 2
+            // 处理中间位置：使用标准贪心策略
             if (prepre == 0) {
+                // 前前个灯泡是暗的，必须按下前一个开关来点亮它
                 int next = process2(arr, idx + 1, pre ^ 1, arr[idx] ^ 1, end, first);
                 return next == Integer.MAX_VALUE ? next : (next + 1);
             } else {
+                // 前前个灯泡已经亮起，不需要按前一个开关
                 return process2(arr, idx + 1, pre, arr[idx], end, first);
             }
         } else {
-            // pre == n - 2
+            // 处理倒数第二个位置：需要考虑对末尾灯泡的影响
             if (prepre == 0) {
+                // 按下当前开关，会影响end（最后一个灯泡）
                 int next = process2(arr, idx + 1, pre ^ 1, end ^ 1, end ^ 1, first);
                 return next == Integer.MAX_VALUE ? next : (next + 1);
             } else {
@@ -135,6 +172,18 @@ public class LightLoopProblem {
         }
     }
 
+    /**
+     * 方法2：优化递归算法的入口函数
+     * 
+     * 枚举前两个开关的4种可能状态：
+     * 1. 都不按：(0不变，1不变)
+     * 2. 只按0：(0变，1不变) 
+     * 3. 只按1：(0不变，1变)
+     * 4. 都按：(0变，1变)
+     * 
+     * @param arr 初始灯泡状态数组
+     * @return 最少按键次数
+     */
     public static int loop2(int[] arr) {
         if (arr == null || arr.length == 0) {
             return 0;
@@ -148,49 +197,83 @@ public class LightLoopProblem {
         if (arr.length == 3) {
             return (arr[0] != arr[1] || arr[0] != arr[2]) ? Integer.MAX_VALUE : (arr[0] ^ 1);
         }
-        // 0不变，1不变
+        
+        // 枚举前两个开关的4种状态
+        // 情况1：0不变，1不变（都不按）
         int p1 = process2(arr, 3, arr[1], arr[2], arr[arr.length - 1], arr[0]);
-        // 0变，1不变
+        
+        // 情况2：0变，1不变（只按第0个开关）
+        // 按第0个开关会影响：arr[n-1] ^= 1, arr[0] ^= 1, arr[1] ^= 1
         int p2 = process2(arr, 3, arr[1] ^ 1, arr[2], arr[arr.length - 1] ^ 1, arr[0] ^ 1);
-        // 0不变，1变
+        
+        // 情况3：0不变，1变（只按第1个开关）
+        // 按第1个开关会影响：arr[0] ^= 1, arr[1] ^= 1, arr[2] ^= 1
         int p3 = process2(arr, 3, arr[1] ^ 1, arr[2] ^ 1, arr[arr.length - 1], arr[0] ^ 1);
-        // 0变，1变
+        
+        // 情况4：0变，1变（都按）
+        // 按第0和第1个开关的组合效果
         int p4 = process2(arr, 3, arr[1], arr[2] ^ 1, arr[arr.length - 1] ^ 1, arr[0]);
-        p2 = p2 != Integer.MAX_VALUE ? (p2 + 1) : p2;
-        p3 = p3 != Integer.MAX_VALUE ? (p3 + 1) : p3;
-        // p4改变了2个, +2
-        p4 = p4 != Integer.MAX_VALUE ? (p4 + 2) : p4;
+        
+        // 计算每种情况的总按键次数
+        p2 = p2 != Integer.MAX_VALUE ? (p2 + 1) : p2;   // 按了第0个开关，+1
+        p3 = p3 != Integer.MAX_VALUE ? (p3 + 1) : p3;   // 按了第1个开关，+1
+        p4 = p4 != Integer.MAX_VALUE ? (p4 + 2) : p4;   // 按了两个开关，+2
+        
         return Math.min(Math.min(p1, p2), Math.min(p3, p4));
     }
 
-    //
-
+    /**
+     * 方法3：空间优化的迭代算法，将递归改为循环
+     * 
+     * 这是方法2的迭代优化版本，避免了递归调用的开销
+     * 
+     * @param arr 原始灯泡数组
+     * @param i 开始处理的位置
+     * @param prepre 前前个位置的灯泡状态
+     * @param pre 前一个位置的灯泡状态
+     * @param end 最后一个灯泡的状态
+     * @param first 第一个灯泡的状态
+     * @return 最少按键次数
+     */
     private static int process3(int[] arr, int i, int prepre, int pre, int end, int first) {
-        int ans = 0;
+        int ans = 0; // 记录按键次数
+        
+        // 从左到右迭代处理中间部分
         while (i < arr.length - 1) {
             if (prepre == 0) {
+                // 前前个灯泡是暗的，必须按下前一个开关
                 ans++;
-                prepre = pre ^ 1;
-                pre = (arr[i++] ^ 1);
+                prepre = pre ^ 1;        // 更新前前个状态
+                pre = (arr[i++] ^ 1);    // 更新前一个状态并移动到下一位置
             } else {
+                // 前前个灯泡已经亮起，不需要按开关
                 prepre = pre;
                 pre = arr[i++];
             }
         }
-        // pre == n - 2
+        
+        // 处理倒数第二个位置（i == arr.length - 1）
         if (prepre == 0) {
+            // 需要按下当前开关，这会影响最后一个灯泡
             ans++;
             prepre = pre ^ 1;
-            end ^= 1;
+            end ^= 1;    // 最后一个灯泡状态改变
             pre = end;
         } else {
             prepre = pre;
             pre = end;
         }
-        // pre == n - 1
+        
+        // 检查最终约束条件并决定最后一个开关
         return (end != first || end != prepre) ? Integer.MAX_VALUE : (ans + (end ^ 1));
     }
 
+    /**
+     * 方法3：空间优化的迭代算法入口函数
+     * 
+     * @param arr 初始灯泡状态数组
+     * @return 最少按键次数
+     */
     public static int loop3(int[] arr) {
         if (arr == null || arr.length == 0) {
             return 0;
@@ -204,22 +287,26 @@ public class LightLoopProblem {
         if (arr.length == 3) {
             return (arr[0] != arr[1] || arr[0] != arr[2]) ? Integer.MAX_VALUE : (arr[0] ^ 1);
         }
-        // 0不变，1不变
+        
+        // 枚举前两个开关的4种状态，使用迭代算法
         int p1 = process3(arr, 3, arr[1], arr[2], arr[arr.length - 1], arr[0]);
-        // 0变，1不变
         int p2 = process3(arr, 3, arr[1] ^ 1, arr[2], arr[arr.length - 1] ^ 1, arr[0] ^ 1);
-        // 0不变，1变
         int p3 = process3(arr, 3, arr[1] ^ 1, arr[2] ^ 1, arr[arr.length - 1], arr[0] ^ 1);
-        // 0变，1变
         int p4 = process3(arr, 3, arr[1], arr[2] ^ 1, arr[arr.length - 1] ^ 1, arr[0]);
+        
         p2 = p2 != Integer.MAX_VALUE ? (p2 + 1) : p2;
         p3 = p3 != Integer.MAX_VALUE ? (p3 + 1) : p3;
         p4 = p4 != Integer.MAX_VALUE ? (p4 + 2) : p4;
+        
         return Math.min(Math.min(p1, p2), Math.min(p3, p4));
     }
 
-    //
-
+    /**
+     * 生成随机灯泡状态数组用于测试
+     * 
+     * @param len 数组长度
+     * @return 随机生成的灯泡状态数组
+     */
     private static int[] randomArr(int len) {
         int[] arr = new int[len];
         for (int i = 0; i < arr.length; i++) {
@@ -228,31 +315,55 @@ public class LightLoopProblem {
         return arr;
     }
 
+    /**
+     * 测试方法：验证三种算法的正确性和性能
+     */
     public static void main(String[] args) {
+        System.out.println("=== 环形开关灯问题测试 ===");
         System.out.println("test begin");
+        
         int times = 20000;
         int maxLen = 12;
+        boolean allCorrect = true;
+        
         for (int i = 0; i < times; i++) {
             int len = (int) (Math.random() * maxLen);
             int[] arr = randomArr(len);
             int ans1 = loop1(arr);
             int ans2 = loop2(arr);
             int ans3 = loop3(arr);
+            
             if (ans1 != ans2 || ans1 != ans3) {
-                System.out.println("Wrong2");
-                System.out.println(ans1 + "|" + ans2 + "|" + ans3);
+                System.out.println("发现错误! 测试用例: " + i);
+                System.out.println("方法1: " + ans1 + ", 方法2: " + ans2 + ", 方法3: " + ans3);
+                allCorrect = false;
                 break;
             }
         }
+        
+        if (allCorrect) {
+            System.out.println("✓ 所有测试通过，算法正确！");
+        }
         System.out.println("test end");
 
+        // 性能测试
+        System.out.println("\n=== 性能测试 ===");
         int len = 100000000;
         int[] arr = randomArr(len);
-        long start = 0, end = 0;
-        start = System.currentTimeMillis();
+        
+        long start = System.currentTimeMillis();
         loop3(arr);
-        end = System.currentTimeMillis();
-        System.out.println("loop3 run time: " + (end - start) + " ms");
+        long end = System.currentTimeMillis();
+        System.out.println("大规模数据（" + len + "个灯泡）耗时: " + (end - start) + "ms");
+        
+        System.out.println("\n=== 算法特点总结 ===");
+        System.out.println("1. 环形约束使问题复杂度增加");
+        System.out.println("2. 需要枚举前两个开关的状态来破解循环依赖");
+        System.out.println("3. 方法1: O(2^n) - 递归枚举所有可能");
+        System.out.println("4. 方法2: O(n) - 优化递归，预处理+贪心");
+        System.out.println("5. 方法3: O(n) - 空间优化的迭代版本");
+        
+        System.out.println("\n=== 测试完成 ===");
     }
 
 }

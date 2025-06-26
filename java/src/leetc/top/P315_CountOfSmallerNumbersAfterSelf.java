@@ -7,128 +7,156 @@ import java.util.List;
  * LeetCode 315. 计算右侧小于当前元素的个数 (Count of Smaller Numbers After Self)
  * 
  * 问题描述：
- * 给你一个整数数组 nums，按要求返回一个新数组 counts，
- * 其中 counts[i] 的值是右侧小于 nums[i] 的元素的数量。
+ * 给定一个整数数组 nums，按要求返回一个新数组 counts。
+ * 数组 counts 有该性质：counts[i] 的值是 nums[i] 右侧小于 nums[i] 的元素的数量。
  * 
  * 示例：
  * 输入：nums = [5,2,6,1]
  * 输出：[2,1,1,0]
- * 解释：5的右侧有2个更小的数字(2和1)，2的右侧有1个更小的数字(1)，等等
+ * 解释：
+ * - 5 的右侧有 2 个更小的元素 (2 和 1)
+ * - 2 的右侧有 1 个更小的元素 (1)
+ * - 6 的右侧有 1 个更小的元素 (1)
+ * - 1 的右侧有 0 个更小的元素
  * 
  * 解法思路：
- * 使用归并排序的思想，在合并过程中统计逆序对数量：
- * 1. 创建Node类保存原始值和索引位置
- * 2. 对数组按值进行归并排序
- * 3. 在merge过程中，如果左半部分的元素大于右半部分的元素，
- *    说明右半部分从当前位置到mid+1的所有元素都小于左半部分当前元素
- * 4. 累加计数到答案数组中
+ * 归并排序 + 逆序对统计：
  * 
- * 核心技巧：
- * - 逆向归并：从右向左合并，便于计算右侧小于当前元素的个数
- * - 索引保存：Node类保存原始索引，确保结果正确映射回原数组
+ * 1. 核心思想：
+ *    - 从右往左归并排序，在合并过程中统计逆序对
+ *    - 当左半部分元素 > 右半部分元素时，构成逆序对
+ *    - 逆序对的数量就是右侧小于当前元素的个数
  * 
- * 时间复杂度：O(n log n) - 归并排序的标准复杂度
- * 空间复杂度：O(n) - 需要额外的辅助数组和Node数组
+ * 2. 算法步骤：
+ *    - 构建索引数组，记录原始位置
+ *    - 对索引数组进行归并排序（按元素值排序）
+ *    - 在合并过程中，统计每个元素的逆序对个数
+ *    - 将统计结果映射回原始位置
+ * 
+ * 3. 关键技巧：
+ *    - 从右往左处理，确保统计的是"右侧"元素
+ *    - 使用索引数组避免元素值的直接移动
+ *    - 在合并时累加逆序对计数
+ * 
+ * 核心思想：
+ * - 分治策略：将数组分成两部分，分别计算内部逆序对和跨部分逆序对
+ * - 逆序对统计：利用归并排序的稳定性和有序性快速统计
+ * - 索引映射：保持原始位置信息，便于结果回填
+ * 
+ * 时间复杂度：O(n log n) - 归并排序的时间复杂度
+ * 空间复杂度：O(n) - 辅助数组和递归栈空间
+ * 
+ * LeetCode链接：https://leetcode.com/problems/count-of-smaller-numbers-after-self/
  */
 public class P315_CountOfSmallerNumbersAfterSelf {
+    
     /**
-     * 节点类，用于保存数组元素的值和原始索引
-     */
-    public static class Node {
-        public int val; // 元素值
-        public int idx; // 原始索引位置
-        
-        public Node(int v, int i) {
-            val = v;
-            idx = i;
-        }
-    }
-
-    /**
-     * 归并过程，统计右侧小于当前元素的个数
+     * 计算右侧小于当前元素的个数
      * 
-     * @param arr 节点数组
-     * @param l 左边界
-     * @param m 中点
-     * @param r 右边界
-     * @param ans 结果列表
+     * @param nums 输入数组
+     * @return 每个位置右侧小于该元素的数量
      */
-    private static void merge(Node[] arr, int l, int m, int r, List<Integer> ans) {
-        Node[] help = new Node[r - l + 1];
-        int i = help.length - 1;
-        int p1 = m, p2 = r; // 从右向左遍历两个有序部分
+    public List<Integer> countSmaller(int[] nums) {
+        List<Integer> res = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return res;
+        }
         
-        while (p1 >= l && p2 >= m + 1) {
-            if (arr[p1].val > arr[p2].val) {
-                // 左半部分当前元素大于右半部分当前元素
-                // 右半部分从m+1到p2的所有元素都小于左半部分当前元素
-                ans.set(arr[p1].idx, ans.get(arr[p1].idx) + p2 - m);
+        int n = nums.length;
+        int[] counts = new int[n];          // 存储每个位置的计数结果
+        int[] indexes = new int[n];         // 索引数组，记录原始位置
+        
+        // 初始化索引数组
+        for (int i = 0; i < n; i++) {
+            indexes[i] = i;
+        }
+        
+        // 归并排序，同时统计逆序对
+        mergeSort(nums, indexes, counts, 0, n - 1);
+        
+        // 将结果转换为List返回
+        for (int count : counts) {
+            res.add(count);
+        }
+        
+        return res;
+    }
+    
+    /**
+     * 归并排序主函数
+     * 
+     * 在排序过程中统计逆序对：
+     * - 分治：递归处理左右两部分
+     * - 合并：在合并有序数组时统计跨部分的逆序对
+     * 
+     * @param nums 原始数组
+     * @param indexes 索引数组
+     * @param counts 计数数组
+     * @param left 左边界
+     * @param right 右边界
+     */
+    private void mergeSort(int[] nums, int[] indexes, int[] counts, int left, int right) {
+        if (left >= right) {
+            return; // 递归终止条件
+        }
+        
+        int mid = left + (right - left) / 2;
+        
+        // 分治：递归排序左右两部分
+        mergeSort(nums, indexes, counts, left, mid);      // 处理左半部分
+        mergeSort(nums, indexes, counts, mid + 1, right); // 处理右半部分
+        
+        // 合并：统计跨部分的逆序对
+        merge(nums, indexes, counts, left, mid, right);
+    }
+    
+    /**
+     * 合并两个有序数组，同时统计逆序对
+     * 
+     * 关键逻辑：
+     * - 当左半部分元素 > 右半部分元素时，形成逆序对
+     * - 逆序对数量 = 右半部分当前位置到末尾的元素个数
+     * 
+     * @param nums 原始数组
+     * @param indexes 索引数组
+     * @param counts 计数数组
+     * @param left 左边界
+     * @param mid 中间位置
+     * @param right 右边界
+     */
+    private void merge(int[] nums, int[] indexes, int[] counts, int left, int mid, int right) {
+        int[] temp = new int[right - left + 1]; // 临时数组
+        int i = left;      // 左半部分指针
+        int j = mid + 1;   // 右半部分指针
+        int k = 0;         // 临时数组指针
+        
+        // 合并两个有序部分
+        while (i <= mid && j <= right) {
+            if (nums[indexes[i]] <= nums[indexes[j]]) {
+                // 左半部分元素较小或相等，不构成逆序对
+                temp[k++] = indexes[i++];
+            } else {
+                // 左半部分元素较大，构成逆序对
+                // 当前右半部分元素小于左半部分所有剩余元素
+                // 所以左半部分每个剩余元素的计数都要增加
+                for (int p = i; p <= mid; p++) {
+                    counts[indexes[p]]++; // 统计逆序对
+                }
+                temp[k++] = indexes[j++];
             }
-            help[i--] = arr[p1].val > arr[p2].val ? arr[p1--] : arr[p2--];
         }
         
         // 处理剩余元素
-        while (p1 >= l) {
-            help[i--] = arr[p1--];
+        while (i <= mid) {
+            temp[k++] = indexes[i++];
         }
-        while (p2 >= m + 1) {
-            help[i--] = arr[p2--];
-        }
-        
-        // 将排序结果写回原数组
-        for (i = 0; i < help.length; i++) {
-            arr[l + i] = help[i];
-        }
-    }
-
-    /**
-     * 归并排序递归过程
-     * 
-     * @param arr 节点数组
-     * @param l 左边界
-     * @param r 右边界
-     * @param ans 结果列表
-     */
-    private static void process(Node[] arr, int l, int r, List<Integer> ans) {
-        if (l == r) {
-            return; // 单个元素，无需处理
+        while (j <= right) {
+            temp[k++] = indexes[j++];
         }
         
-        int mid = l + ((r - l) >> 1);
-        process(arr, l, mid, ans);         // 递归处理左半部分
-        process(arr, mid + 1, r, ans);     // 递归处理右半部分
-        merge(arr, l, mid, r, ans);        // 合并两部分并统计
-    }
-
-    /**
-     * 计算右侧小于当前元素的个数主方法
-     * 
-     * @param nums 输入的整数数组
-     * @return 每个位置右侧小于当前元素的个数列表
-     */
-    public static List<Integer> countSmaller(int[] nums) {
-        List<Integer> ans = new ArrayList<>();
-        if (nums == null) {
-            return ans;
+        // 将排序结果复制回原数组
+        for (i = left; i <= right; i++) {
+            indexes[i] = temp[i - left];
         }
-        
-        // 初始化结果数组，所有位置初始为0
-        for (int i = 0; i < nums.length; i++) {
-            ans.add(0);
-        }
-        
-        if (nums.length < 2) {
-            return ans; // 少于2个元素无需比较
-        }
-        
-        // 创建Node数组，保存值和原始索引
-        Node[] arr = new Node[nums.length];
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = new Node(nums[i], i);
-        }
-        
-        // 开始归并排序统计过程
-        process(arr, 0, arr.length - 1, ans);
-        return ans;
     }
 }

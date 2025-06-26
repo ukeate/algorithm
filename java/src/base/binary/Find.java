@@ -23,8 +23,8 @@ public class Find {
         int l = 0; // 左边界
         int r = arr.length - 1; // 右边界
         while (l <= r) {
-            // 计算中点，避免溢出
-            int mid = (l + r) / 2;
+            // 计算中点，防止整数溢出的安全写法
+            int mid = l + (r - l) / 2;
             if (arr[mid] == num) {
                 return true; // 找到目标元素
             } else if (arr[mid] < num) {

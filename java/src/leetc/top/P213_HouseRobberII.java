@@ -1,33 +1,104 @@
 package leetc.top;
 
+/**
+ * LeetCode 213. 打家劫舍 II (House Robber II)
+ * 
+ * 问题描述：
+ * 你是一个专业的小偷，计划偷窃沿街的房屋，每间房内都藏有一定的现金。
+ * 这个地方所有的房屋都 围成一圈 ，这意味着第一个房屋和最后一个房屋是紧挨着的。
+ * 同时，相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。
+ * 
+ * 给定一个代表每个房屋存放金额的非负整数数组，计算你在不触动警报装置的情况下，今晚能够偷窃到的最高金额。
+ * 
+ * 示例：
+ * 输入：nums = [2,3,2]   输出：3
+ * 解释：你不能先偷窃 1 号房屋（金额 = 2），然后偷窃 3 号房屋（金额 = 2）, 因为他们是相邻的。
+ * 
+ * 输入：nums = [1,2,3,1] 输出：4
+ * 解释：你可以先偷窃 1 号房屋（金额 = 1），然后偷窃 3 号房屋（金额 = 3）。
+ *      偷窃到的最高金额 = 1 + 3 = 4 。
+ * 
+ * 解法思路：
+ * 环形动态规划问题：
+ * 1. 核心问题：第一个房屋和最后一个房屋不能同时被偷
+ * 2. 解决方案：分别考虑两种情况，取最大值
+ *    - 情况1：偷第一个房屋，不考虑最后一个房屋 [0, n-2]
+ *    - 情况2：不偷第一个房屋，考虑最后一个房屋 [1, n-1]
+ * 3. 每种情况都退化为线性的House Robber I问题
+ * 
+ * 状态转移：
+ * - dp[i] = max(dp[i-1], nums[i] + dp[i-2])
+ * - 表示考虑前i+1个房屋时的最大收益
+ * 
+ * 边界处理：
+ * - 只有1个房屋：直接返回该房屋金额
+ * - 只有2个房屋：返回两者最大值
+ * - 3个或以上：分两种情况计算
+ * 
+ * 核心思想：
+ * - 将环形问题转化为两个线性问题
+ * - 通过限制范围来避免首尾相邻的约束
+ * - 动态规划优化：使用滚动变量节省空间
+ * 
+ * 时间复杂度：O(n) - 需要遍历数组两次
+ * 空间复杂度：O(1) - 只使用常数额外空间
+ * 
+ * LeetCode链接：https://leetcode.com/problems/house-robber-ii/
+ */
 public class P213_HouseRobberII {
+    
+    /**
+     * 环形房屋强盗问题的解决方案
+     * 
+     * 算法思路：
+     * 1. 特殊情况处理：房屋数量 <= 2 时的边界情况
+     * 2. 一般情况：分两种场景计算，取最大值
+     *    - 场景1：包含第一个房屋，排除最后一个房屋 [0, n-2]
+     *    - 场景2：排除第一个房屋，包含最后一个房屋 [1, n-1]
+     * 3. 每个场景使用线性DP求解
+     * 
+     * @param nums 每个房屋的金额数组
+     * @return 不触动警报的最大偷窃金额
+     */
     public static int rob(int[] nums) {
         if (nums == null || nums.length == 0) {
             return 0;
         }
         if (nums.length == 1) {
-            return nums[0];
+            return nums[0];  // 只有一个房屋，直接偷取
         }
         if (nums.length == 2) {
-            return Math.max(nums[0], nums[1]);
+            return Math.max(nums[0], nums[1]);  // 两个房屋，选择金额较大的
         }
-        int pre2 = nums[0];
-        int pre1 = Math.max(nums[0], nums[1]);
+        
+        // 场景1：偷第一个房屋，范围 [0, n-2]
+        // 初始状态：前两个房屋的最优解
+        int pre2 = nums[0];                        // dp[0] = nums[0]
+        int pre1 = Math.max(nums[0], nums[1]);     // dp[1] = max(nums[0], nums[1])
+        
+        // 动态规划：从第3个房屋开始，到倒数第2个房屋结束
         for (int i = 2; i < nums.length - 1; i++) {
-            // max(要i-1, 要i), 都不要不符合贪心
+            // 当前位置的最优解：max(不偷当前房屋, 偷当前房屋)
             int tmp = Math.max(pre1, nums[i] + pre2);
-            pre2 = pre1;
-            pre1 = tmp;
+            pre2 = pre1;  // 更新dp[i-2]
+            pre1 = tmp;   // 更新dp[i-1]
         }
-        int ans1 = pre1;
-        pre2 = nums[1];
-        pre1 = Math.max(nums[1], nums[2]);
+        int ans1 = pre1;  // 场景1的最优解
+        
+        // 场景2：不偷第一个房屋，范围 [1, n-1]
+        // 重新初始化：从第2个房屋开始
+        pre2 = nums[1];                            // dp[1] = nums[1]
+        pre1 = Math.max(nums[1], nums[2]);         // dp[2] = max(nums[1], nums[2])
+        
+        // 动态规划：从第4个房屋开始，到最后一个房屋结束
         for (int i = 3; i < nums.length; i++) {
             int tmp = Math.max(pre1, nums[i] + pre2);
             pre2 = pre1;
             pre1 = tmp;
         }
-        int ans2 = pre1;
+        int ans2 = pre1;  // 场景2的最优解
+        
+        // 返回两种场景的最大值
         return Math.max(ans1, ans2);
     }
 }

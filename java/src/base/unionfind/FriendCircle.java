@@ -21,7 +21,7 @@ public class FriendCircle {
         
         // 遍历矩阵的上三角部分（因为朋友关系是对称的）
         for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {  // 注意：这里原代码有bug，应该是j < n
+            for (int j = i + 1; j < n; j++) {
                 if (m[i][j] == 1) {
                     // 如果i和j是朋友，将他们合并到同一个集合
                     unionFind.union(i, j);
@@ -91,7 +91,7 @@ public class FriendCircle {
                     size[f1] += size[f2];
                     parent[f2] = f1;
                 } else {
-                    size[f2] += size[f1];  // 注意：这里原代码有bug，应该是+=而不是=
+                    size[f2] += size[f1];
                     parent[f1] = f2;
                 }
                 sets--;  // 合并后集合数量减1

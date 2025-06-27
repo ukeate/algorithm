@@ -2,17 +2,50 @@ package base.tree4;
 
 import java.util.TreeMap;
 
+/**
+ * 有序表性能对比测试类
+ * 
+ * 本类用于测试和比较以下几种有序表实现的功能正确性和性能表现：
+ * 1. Java原生TreeMap (红黑树实现)
+ * 2. AVL平衡二叉搜索树
+ * 3. SizeBalanced Tree (SB树)
+ * 4. SkipList (跳表)
+ * 
+ * 测试包括功能测试和性能测试两部分：
+ * - 功能测试：验证各种操作的正确性，包括增删改查、边界查找等
+ * - 性能测试：在不同数据模式下比较各实现的运行效率
+ */
 public class CompareTest {
+    
+    /**
+     * 功能测试方法
+     * 
+     * 通过大量随机操作测试各种有序表实现的功能正确性：
+     * 1. 随机插入和删除键值对
+     * 2. 验证containsKey操作的一致性
+     * 3. 验证get操作的一致性
+     * 4. 验证floorKey操作的一致性（小于等于给定key的最大key）
+     * 5. 验证ceilingKey操作的一致性（大于等于给定key的最小key）
+     * 6. 验证firstKey和lastKey操作的一致性
+     * 7. 验证size操作的一致性
+     * 
+     * 如果发现任何不一致，将输出错误信息并终止测试
+     */
     public static void functionTest() {
         System.out.println("功能测试开始");
+        // 创建四种不同的有序表实现
         TreeMap<Integer, Integer> treeMap = new TreeMap<>();
         AVL.AVLTreeMap<Integer, Integer> avl = new AVL.AVLTreeMap<>();
         SB.SizeBalancedTreeMap<Integer, Integer> sbt = new SB.SizeBalancedTreeMap<>();
         SkipList.SkipListMap<Integer, Integer> skip = new SkipList.SkipListMap<>();
-        int maxK = 500;
-        int maxV = 50000;
-        int testTime = 1000000;
+        
+        // 测试参数设置
+        int maxK = 500;        // 键的最大值
+        int maxV = 50000;      // 值的最大值
+        int testTime = 1000000; // 测试次数
+        
         for (int i = 0; i < testTime; i++) {
+            // 随机插入操作
             int addK = (int) (Math.random() * maxK);
             int addV = (int) (Math.random() * maxV);
             treeMap.put(addK, addV);
@@ -20,12 +53,14 @@ public class CompareTest {
             sbt.put(addK, addV);
             skip.put(addK, addV);
 
+            // 随机删除操作
             int removeK = (int) (Math.random() * maxK);
             treeMap.remove(removeK);
             avl.remove(removeK);
             sbt.remove(removeK);
             skip.remove(removeK);
 
+            // 随机查询操作，验证containsKey的一致性
             int querryK = (int) (Math.random() * maxK);
             if (treeMap.containsKey(querryK) != avl.containsKey(querryK)
                     || sbt.containsKey(querryK) != skip.containsKey(querryK)
@@ -38,7 +73,9 @@ public class CompareTest {
                 break;
             }
 
+            // 如果key存在，验证get、floorKey、ceilingKey操作的一致性
             if (treeMap.containsKey(querryK)) {
+                // 验证get操作
                 int v1 = treeMap.get(querryK);
                 int v2 = avl.get(querryK);
                 int v3 = sbt.get(querryK);
@@ -51,6 +88,8 @@ public class CompareTest {
                     System.out.println(skip.get(querryK));
                     break;
                 }
+                
+                // 验证floorKey操作（小于等于给定key的最大key）
                 Integer f1 = treeMap.floorKey(querryK);
                 Integer f2 = avl.floorKey(querryK);
                 Integer f3 = sbt.floorKey(querryK);
@@ -85,6 +124,8 @@ public class CompareTest {
                         break;
                     }
                 }
+                
+                // 验证ceilingKey操作（大于等于给定key的最小key）
                 f1 = treeMap.ceilingKey(querryK);
                 f2 = avl.ceilingKey(querryK);
                 f3 = sbt.ceilingKey(querryK);
@@ -119,9 +160,9 @@ public class CompareTest {
                         break;
                     }
                 }
-
             }
 
+            // 验证firstKey操作（最小key）
             Integer f1 = treeMap.firstKey();
             Integer f2 = avl.firstKey();
             Integer f3 = sbt.firstKey();
@@ -157,6 +198,7 @@ public class CompareTest {
                 }
             }
 
+            // 验证lastKey操作（最大key）
             f1 = treeMap.lastKey();
             f2 = avl.lastKey();
             f3 = sbt.lastKey();
@@ -191,6 +233,8 @@ public class CompareTest {
                     break;
                 }
             }
+            
+            // 验证size操作（元素个数）
             if (treeMap.size() != avl.size() || sbt.size() != skip.size() || treeMap.size() != sbt.size()) {
                 System.out.println("size Oops");
                 System.out.println(treeMap.size());
@@ -203,6 +247,16 @@ public class CompareTest {
         System.out.println("功能测试结束");
     }
 
+    /**
+     * 性能测试方法
+     * 
+     * 在不同的数据操作模式下测试各种有序表实现的性能表现：
+     * 1. 顺序递增插入和删除
+     * 2. 顺序递减插入和删除  
+     * 3. 随机插入和删除
+     * 
+     * 每种模式都会测试所有四种实现，并记录运行时间进行对比
+     */
     public static void performanceTest() {
         System.out.println("性能测试开始");
         TreeMap<Integer, Integer> treeMap;
@@ -210,11 +264,15 @@ public class CompareTest {
         SB.SizeBalancedTreeMap<Integer, Integer> sbt;
         long start;
         long end;
-        int max = 10000000;
+        int max = 10000000; // 测试数据规模
+        
+        // 初始化各种有序表
         treeMap = new TreeMap<>();
         avl = new AVL.AVLTreeMap<>();
         sbt = new SB.SizeBalancedTreeMap<>();
         SkipList.SkipListMap<Integer, Integer> skip = new SkipList.SkipListMap<>();
+        
+        // 测试1：顺序递增插入
         System.out.println("顺序递增加入测试，数据规模 : " + max);
         start = System.currentTimeMillis();
         for (int i = 0; i < max; i++) {
@@ -244,6 +302,7 @@ public class CompareTest {
         end = System.currentTimeMillis();
         System.out.println("skip 运行时间 : " + (end - start) + "ms");
 
+        // 测试2：顺序递增删除
         System.out.println("顺序递增删除测试，数据规模 : " + max);
         start = System.currentTimeMillis();
         for (int i = 0; i < max; i++) {
@@ -273,6 +332,7 @@ public class CompareTest {
         end = System.currentTimeMillis();
         System.out.println("skip 运行时间 : " + (end - start) + "ms");
 
+        // 测试3：顺序递减插入
         System.out.println("顺序递减加入测试，数据规模 : " + max);
         start = System.currentTimeMillis();
         for (int i = max; i >= 0; i--) {
@@ -302,6 +362,7 @@ public class CompareTest {
         end = System.currentTimeMillis();
         System.out.println("skip 运行时间 : " + (end - start) + "ms");
 
+        // 测试4：顺序递减删除
         System.out.println("顺序递减删除测试，数据规模 : " + max);
         start = System.currentTimeMillis();
         for (int i = max; i >= 0; i--) {
@@ -331,6 +392,7 @@ public class CompareTest {
         end = System.currentTimeMillis();
         System.out.println("skip 运行时间 : " + (end - start) + "ms");
 
+        // 测试5：随机插入
         System.out.println("随机加入测试，数据规模 : " + max);
         start = System.currentTimeMillis();
         for (int i = 0; i < max; i++) {
@@ -360,6 +422,7 @@ public class CompareTest {
         end = System.currentTimeMillis();
         System.out.println("skip 运行时间 : " + (end - start) + "ms");
 
+        // 测试6：随机删除
         System.out.println("随机删除测试，数据规模 : " + max);
         start = System.currentTimeMillis();
         for (int i = 0; i < max; i++) {
@@ -392,10 +455,13 @@ public class CompareTest {
         System.out.println("性能测试结束");
     }
 
+    /**
+     * 主方法
+     * 依次执行功能测试和性能测试
+     */
     public static void main(String[] args) {
         functionTest();
         System.out.println("======");
         performanceTest();
     }
-
 }

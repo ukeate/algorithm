@@ -1,5 +1,35 @@
 package leetc.top;
 
+/**
+ * LeetCode 248. 中心对称数 III (Strobogrammatic Number III)
+ * 
+ * 问题描述：
+ * 中心对称数是指一个数字在旋转了 180 度之后看起来仍然相同的数字。
+ * 例如，数字 69 在旋转 180 度之后仍看起来和 69 一样。
+ * 给定两个表示下限和上限的字符串 low 和 high，统计该范围内中心对称数的个数。
+ * 
+ * 示例：
+ * 输入：low = "50", high = "100"
+ * 输出：3
+ * 解释：69, 88, 96 是该范围内的中心对称数。
+ * 
+ * 解法思路：
+ * 数位 DP + 组合数学：
+ * 1. 数位 DP：分别计算 [0, high] 和 [0, low-1] 范围内的中心对称数
+ * 2. 组合数学：对于不同位数的中心对称数，直接计算组合数
+ * 3. 递归搜索：对于同位数的情况，使用递归搜索算法
+ * 
+ * 核心思想：
+ * - 中心对称数只能由 0,1,6,8,9 组成，且有对应关系：0↔0, 1↔1, 6↔9, 8↔8, 9↔6
+ * - 对于 n 位数，前 n/2 位确定后，后 n/2 位完全由前面决定
+ * - 奇数位数的中间位只能是 0,1,8（自身对称）
+ * - 首位不能为 0（除非是单位数）
+ * 
+ * 时间复杂度：O(log^2(high)) - 数位 DP 的复杂度
+ * 空间复杂度：O(log(high)) - 递归调用栈深度
+ * 
+ * LeetCode链接：https://leetcode.com/problems/strobogrammatic-number-iii/
+ */
 public class P248_StrobogrammaticNumberIII {
     private static boolean equalMore(char[] low, char[] cur) {
         if (low.length != cur.length) {
